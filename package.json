@@ -1,0 +1,11 @@
+{
+  "name": "nexora-crm",
+  "private": true,
+  "workspaces": ["apps/web", "apps/api", "packages/shared"],
+  "scripts": {
+    "dev": "npm run dev --workspace @nexora/web",
+    "build": "npm run build --workspace @nexora/web && npm run build --workspace @nexora/api",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
