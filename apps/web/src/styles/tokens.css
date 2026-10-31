@@ -1,0 +1,247 @@
+/* Nexora design tokens. Light is the base; dark and palettes only override tokens. */
+:root {
+  color-scheme: light;
+  --font: 'Urbanist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --bg: #e6ebee;
+  --mesh-1: #c4def2;
+  --mesh-2: #cdeedd;
+  --mesh-3: #f4d6c8;
+
+  --glass: rgba(255, 255, 255, 0.56);
+  --glass-2: rgba(255, 255, 255, 0.74);
+  --glass-3: rgba(255, 255, 255, 0.9);
+  --float: #fbfcfd;
+  --well: rgba(18, 22, 26, 0.06);
+
+  --ink: #121519;
+  --ink-2: #4b525a;
+  --ink-3: #7d848c;
+  --line: rgba(18, 22, 26, 0.09);
+  --line-2: rgba(18, 22, 26, 0.16);
+
+  --accent: #15191d;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(21, 25, 29, 0.08);
+  --hero: #15191d;
+  --hero-ink: #ffffff;
+  --hero-ink-2: rgba(255, 255, 255, 0.62);
+  --hero-line: rgba(255, 255, 255, 0.14);
+  --dock: #15191d;
+  --dock-ink: rgba(255, 255, 255, 0.7);
+
+  /* Status colours mean the same thing in every palette. */
+  --up: #1f6f57;
+  --up-soft: #d8eee5;
+  --down: #ad3f29;
+  --down-soft: #f6ddd4;
+  --warn: #855809;
+  --warn-soft: #f5e9cd;
+  --info: #285c9f;
+  --info-soft: #dbe6f6;
+
+  /* Charts: the "current" series uses --c-main, comparisons use --c-muted. */
+  --c-main: #15191d;
+  --c-muted: rgba(18, 22, 26, 0.18);
+  --c-grid: rgba(18, 22, 26, 0.08);
+  --c1: #2a78d6;
+  --c2: #eb6834;
+  --c3: #1baf7a;
+  --c4: #eda100;
+  --c-other: #a7adb3;
+  --heat-0: rgba(18, 22, 26, 0.05);
+  --heat-1: #cdd9e3;
+  --heat-2: #9fb3c4;
+  --heat-3: #627a8f;
+  --heat-4: #24333f;
+
+  --r-xs: 8px;
+  --r-sm: 14px;
+  --r-card: 22px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 24px 48px -30px rgba(20, 32, 44, 0.38),
+    0 2px 6px -3px rgba(20, 32, 44, 0.08);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 30px 56px -28px rgba(20, 32, 44, 0.45),
+    0 2px 8px -3px rgba(20, 32, 44, 0.12);
+  --shadow-pop: 0 30px 70px -20px rgba(15, 25, 35, 0.4), 0 4px 14px rgba(15, 25, 35, 0.1);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --gutter: clamp(16px, 1.6vw, 28px);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0c1115;
+  --mesh-1: #12324a;
+  --mesh-2: #123a2d;
+  --mesh-3: #3d2219;
+  --glass: rgba(26, 32, 38, 0.6);
+  --glass-2: rgba(30, 37, 44, 0.78);
+  --glass-3: rgba(34, 41, 48, 0.94);
+  --float: #1a2026;
+  --well: rgba(255, 255, 255, 0.07);
+  --ink: #eef1f3;
+  --ink-2: #b4bbc2;
+  --ink-3: #848c94;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.16);
+  --accent: #eef1f3;
+  --accent-ink: #11161a;
+  --accent-soft: rgba(255, 255, 255, 0.08);
+  /* The hero tile inverts: light on the dark page. */
+  --hero: #eef1f3;
+  --hero-ink: #11161a;
+  --hero-ink-2: rgba(17, 22, 26, 0.6);
+  --hero-line: rgba(17, 22, 26, 0.12);
+  --dock: #232a31;
+  --dock-ink: rgba(255, 255, 255, 0.66);
+  --up: #5cc49d;
+  --up-soft: rgba(92, 196, 157, 0.14);
+  --down: #ec8a72;
+  --down-soft: rgba(236, 138, 114, 0.14);
+  --warn: #e2b357;
+  --warn-soft: rgba(226, 179, 87, 0.14);
+  --info: #7fb0ef;
+  --info-soft: rgba(127, 176, 239, 0.14);
+  --c-main: #eef1f3;
+  --c-muted: rgba(255, 255, 255, 0.16);
+  --c-grid: rgba(255, 255, 255, 0.07);
+  --c1: #3987e5;
+  --c2: #d95926;
+  --c3: #199e70;
+  --c4: #c98500;
+  --c-other: #6b737b;
+  --heat-0: rgba(255, 255, 255, 0.05);
+  --heat-1: #22394d;
+  --heat-2: #2f5878;
+  --heat-3: #4f86b3;
+  --heat-4: #a9cdee;
+  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 24px 48px -30px rgba(0, 0, 0, 0.7);
+  --shadow-hover: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 30px 56px -26px rgba(0, 0, 0, 0.8);
+  --shadow-pop: 0 30px 70px -20px rgba(0, 0, 0, 0.75), 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* Palettes re-tint the accent, hero tile, mesh and main chart series. */
+[data-palette='ocean'] {
+  --accent: #1d5a86;
+  --hero: #1d5a86;
+  --c-main: #1d5a86;
+  --dock: #173f5c;
+  --mesh-1: #b5d8f0;
+  --mesh-2: #bfe8ea;
+  --mesh-3: #d4dcf6;
+  --heat-1: #cfe3f2;
+  --heat-2: #94c1e2;
+  --heat-3: #4b8cbd;
+  --heat-4: #1d5a86;
+}
+[data-palette='sage'] {
+  --accent: #345e4a;
+  --hero: #345e4a;
+  --c-main: #345e4a;
+  --dock: #263f33;
+  --mesh-1: #d3e6cf;
+  --mesh-2: #c6e6d6;
+  --mesh-3: #ece5c9;
+  --heat-1: #d7e8dc;
+  --heat-2: #a6cbb2;
+  --heat-3: #63977a;
+  --heat-4: #345e4a;
+}
+[data-palette='pastel'] {
+  --accent: #5b4bb3;
+  --hero: #5b4bb3;
+  --c-main: #5b4bb3;
+  --dock: #3d3378;
+  --mesh-1: #e1d6f6;
+  --mesh-2: #f6d9e6;
+  --mesh-3: #d4ecf3;
+  --heat-1: #e4def6;
+  --heat-2: #bfb3ec;
+  --heat-3: #8a78d6;
+  --heat-4: #4b3d9a;
+}
+[data-theme='dark'][data-palette='ocean'] {
+  --accent: #8cc3ec;
+  --hero: #8cc3ec;
+  --c-main: #8cc3ec;
+  --dock: #17344a;
+  --mesh-1: #0f3550;
+  --mesh-2: #0d3a40;
+  --mesh-3: #1d2650;
+  --heat-1: #173349;
+  --heat-2: #1f5175;
+  --heat-3: #3a80b5;
+  --heat-4: #8cc3ec;
+}
+[data-theme='dark'][data-palette='sage'] {
+  --accent: #a3d1b6;
+  --hero: #a3d1b6;
+  --c-main: #a3d1b6;
+  --dock: #1f3328;
+  --mesh-1: #193524;
+  --mesh-2: #12372b;
+  --mesh-3: #33301a;
+  --heat-1: #1b3324;
+  --heat-2: #2b5a3e;
+  --heat-3: #4f8f69;
+  --heat-4: #a3d1b6;
+}
+[data-theme='dark'][data-palette='pastel'] {
+  --accent: #c2b6f4;
+  --hero: #c2b6f4;
+  --c-main: #c2b6f4;
+  --dock: #2c2650;
+  --mesh-1: #2b2150;
+  --mesh-2: #46203a;
+  --mesh-3: #173643;
+  --heat-1: #2a2449;
+  --heat-2: #463b7e;
+  --heat-3: #7465c2;
+  --heat-4: #c2b6f4;
+}
+
+/* Lime: the default sales palette. Dark ink pill, lime accent, warm "photo" backdrop. */
+[data-palette='lime'] {
+  --bg: #e9ece7;
+  --mesh-1: #cfdcc9;
+  --mesh-2: #e9e3cf;
+  --mesh-3: #c9dbe6;
+  --accent: #c4ef4f;
+  --accent-ink: #13171a;
+  --accent-soft: rgba(110, 150, 20, 0.12);
+  --hero: #13171a;
+  --hero-ink: #f6f7f3;
+  --hero-ink-2: rgba(246, 247, 243, 0.62);
+  --hero-line: rgba(246, 247, 243, 0.14);
+  --dock: #13171a;
+  --c-main: #13171a;
+  --heat-1: #e3f3b6;
+  --heat-2: #c4ef4f;
+  --heat-3: #7aa22a;
+  --heat-4: #3f6410;
+}
+[data-theme='dark'][data-palette='lime'] {
+  --bg: #0e110f;
+  --mesh-1: #2b3843;
+  --mesh-2: #4a3226;
+  --mesh-3: #2c3820;
+  --glass: rgba(24, 28, 26, 0.58);
+  --glass-2: rgba(28, 33, 30, 0.74);
+  --glass-3: rgba(32, 37, 34, 0.92);
+  --float: #1a1e1c;
+  --accent: #c4ef4f;
+  --accent-ink: #13171a;
+  --accent-soft: rgba(196, 239, 79, 0.12);
+  --hero: #c4ef4f;
+  --hero-ink: #13171a;
+  --hero-ink-2: rgba(19, 23, 26, 0.62);
+  --hero-line: rgba(19, 23, 26, 0.14);
+  --dock: rgba(30, 35, 32, 0.92);
+  --c-main: #c4ef4f;
+  --heat-1: #24301a;
+  --heat-2: #3f5a1d;
+  --heat-3: #7aa22a;
+  --heat-4: #c4ef4f;
+}

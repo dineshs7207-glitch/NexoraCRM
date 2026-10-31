@@ -1,2 +1,45 @@
 <!doctype html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#0A1A3A"/><title>Nexora CRM</title></head><body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body></html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#e6ebee" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Nexora</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      // Apply the saved theme before first paint so there is no light/dark flash.
+      (function () {
+        try {
+          var p = JSON.parse(localStorage.getItem('nexora:prefs:v2') || '{}');
+          var t = p.theme === 'light' ? 'light' : p.theme === 'system' && !matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
+          document.documentElement.dataset.theme = t;
+          document.documentElement.dataset.palette = p.palette || 'lime';
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root">
+      <!-- Shown until the app boots; React replaces it. -->
+      <div class="boot" role="status" aria-label="Loading Nexora">
+        <div class="boot-logo">N</div>
+        <div class="boot-bar"><i></i></div>
+      </div>
+    </div>
+    <style>
+      .boot{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:22px;background:#e6ebee;font-family:system-ui,sans-serif}
+      [data-theme='dark'] .boot{background:#0c1115}
+      .boot-logo{width:58px;height:58px;border-radius:18px;background:#15191d;color:#fff;display:grid;place-items:center;font:800 24px system-ui;animation:boot-pulse 1.4s ease-in-out infinite}
+      [data-theme='dark'] .boot-logo{background:#eef1f3;color:#11161a}
+      .boot-bar{width:120px;height:4px;border-radius:9px;background:rgba(127,127,127,.2);overflow:hidden}
+      .boot-bar i{display:block;width:40%;height:100%;border-radius:9px;background:currentColor;color:#15191d;animation:boot-slide 1.1s cubic-bezier(.2,.8,.2,1) infinite}
+      [data-theme='dark'] .boot-bar i{color:#eef1f3}
+      @keyframes boot-pulse{50%{transform:scale(.92);opacity:.8}}
+      @keyframes boot-slide{from{transform:translateX(-110%)}to{transform:translateX(260%)}}
+    </style>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
