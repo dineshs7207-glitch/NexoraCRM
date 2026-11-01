@@ -109,6 +109,9 @@ export function Login() {
                 Forgot password?
               </button>
             )}
+            <a className="btn ghost sm" href="privacy.html">
+              Privacy
+            </a>
           </div>
         </form>
       )}

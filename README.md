@@ -2,7 +2,7 @@
 
 Sales platform for the Nexora team: pipeline (deals and leads), customers with full client history, schedule, finance (quotes, invoices, payments), growth reports, onboarding projects, an inbox and a working automation engine. Structure and labels follow the sales reference in [docs/SOLVIK_REFERENCE.md](docs/SOLVIK_REFERENCE.md); interaction patterns come from [docs/CORBEL_REFERENCE_ANALYSIS.md](docs/CORBEL_REFERENCE_ANALYSIS.md). All code and styles are our own. QA notes: [docs/QA_REVIEW.md](docs/QA_REVIEW.md).
 
-**Status: Phase 3 started.** Sign-in and user profiles run on Supabase (project `bescvqmyrwyzcszpymcb`). CRM records still live as sample data in the browser until they move to the database, so don't enter real customer data yet.
+**Status: Phase 3.** Sign-in, profiles and every CRM record (leads, accounts, contacts, deals, products, quotes, invoices, tasks, projects, inbox, automations, audit log) live in Supabase (project `bescvqmyrwyzcszpymcb`), so the whole team shares one workspace from anywhere. Only notifications stay in the browser. Others' changes show up when you reload.
 
 ## Run locally
 
@@ -67,7 +67,7 @@ Accounts, deals, products, quotes and invoices each carry their own currency (IN
 
 ### Roles
 
-Owner and Admin see everything. Managers see their team, Sales reps see only their own records, and Viewers are read-only. Your role comes from your Supabase profile. Settings → Team → **View as** still lets you check what each role sees in this browser; the database enforces the same rules with row level security as records move to Supabase.
+Owner and Admin see everything. Managers see their team, Sales reps see only their own records, and Viewers are read-only. Your role comes from your Supabase profile. Settings → Team → **View as** still lets you check what each role sees in this browser; the database enforces the same rules with row level security.
 
 ### Invoice download
 
