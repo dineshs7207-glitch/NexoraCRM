@@ -16,7 +16,7 @@ additional_redirect_urls = ["http://localhost:5173/**", "https://dineshs7207-gli
 jwt_expiry = 900
 enable_signup = true
 
-# Open sign-up (new accounts start as sales_rep/own), invites, password, magic links and Google.
+# Invite-only: sign-up stays on so invitees can use Google, but only invited users get a profile.
 [auth.email]
 enable_signup = true
 enable_confirmations = true
@@ -27,3 +27,7 @@ enabled = true
 client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
 skip_nonce_check = false
+
+# Checks the caller itself with @supabase/server; the platform check only understands legacy JWT keys.
+[functions.invite-user]
+verify_jwt = false

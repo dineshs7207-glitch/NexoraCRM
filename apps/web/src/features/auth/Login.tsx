@@ -5,7 +5,7 @@ import { useSession } from '../../lib/session';
 import { AuthScreen } from '../../shell/AuthGate';
 import { Field, Spinner } from '../../ui';
 
-type Mode = 'password' | 'signup' | 'link' | 'reset';
+type Mode = 'password' | 'link' | 'reset';
 
 export function Login() {
   const s = useSession();
@@ -14,7 +14,6 @@ export function Login() {
   const [mode, setMode] = useState<Mode>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(params.get('error') ?? '');
   const [sent, setSent] = useState('');
@@ -28,21 +27,14 @@ export function Login() {
     setBusy(true);
     setError('');
     const address = email.trim();
-    if (mode === 'signup' && password.length < 8) {
-      setBusy(false);
-      return setError('Use at least 8 characters for your password.');
-    }
     const result =
       mode === 'password'
         ? await supabase.auth.signInWithPassword({ email: address, password })
-        : mode === 'signup'
-          ? await supabase.auth.signUp({ email: address, password, options: { data: { full_name: fullName.trim() }, emailRedirectTo: appUrl() } })
-          : mode === 'link'
+        : mode === 'link'
           ? await supabase.auth.signInWithOtp({ email: address, options: { shouldCreateUser: false, emailRedirectTo: appUrl() } })
           : await supabase.auth.resetPasswordForEmail(address, { redirectTo: appUrl() });
     setBusy(false);
     if (result.error) return setError(mode === 'link' && result.error.status === 422 ? 'No Nexora account uses that email. Ask an admin to invite you.' : result.error.message);
-    if (mode === 'signup') setSent(`Confirm your email: we've sent a link to ${address}.`);
     if (mode === 'link') setSent(`We've emailed a sign-in link to ${address}.`);
     if (mode === 'reset') setSent(`If ${address} has an account, a reset link is on its way.`);
   };
@@ -55,8 +47,7 @@ export function Login() {
   };
 
   const titles: Record<Mode, [string, string]> = {
-    password: ['Sign in', 'Welcome back to Nexora.'],
-    signup: ['Create your account', 'New accounts start as a Sales rep. An admin can change your role.'],
+    password: ['Sign in', 'Welcome back to Nexora. New here? Ask an admin to invite you.'],
     link: ['Email me a sign-in link', "No password needed. We'll send a one-time link."],
     reset: ['Reset your password', "We'll email you a link to choose a new one."],
   };
@@ -77,7 +68,7 @@ export function Login() {
         </div>
       ) : (
         <form className="stack" onSubmit={submit}>
-          {(mode === 'password' || mode === 'signup') && (
+          {mode === 'password' && (
             <>
               <button type="button" className="btn" onClick={() => void google()} disabled={busy}>
                 <GoogleMark /> Continue with Google
@@ -85,17 +76,12 @@ export function Login() {
               <div className="auth-or">or</div>
             </>
           )}
-          {mode === 'signup' && (
-            <Field label="Full name">
-              <input className="input" autoComplete="name" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-            </Field>
-          )}
           <Field label="Work email">
             <input className="input" type="email" autoComplete="email" required autoFocus value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
-          {(mode === 'password' || mode === 'signup') && (
-            <Field label="Password" hint={mode === 'signup' ? 'At least 8 characters' : undefined}>
-              <input className="input" type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required value={password} onChange={(e) => setPassword(e.target.value)} />
+          {mode === 'password' && (
+            <Field label="Password">
+              <input className="input" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </Field>
           )}
           {error && (
@@ -105,7 +91,7 @@ export function Login() {
           )}
           <button className="btn primary" type="submit" disabled={busy}>
             {busy && <Spinner size={16} />}
-            {mode === 'password' ? 'Sign in' : mode === 'signup' ? 'Create account' : mode === 'link' ? 'Send sign-in link' : 'Send reset link'}
+            {mode === 'password' ? 'Sign in' : mode === 'link' ? 'Send sign-in link' : 'Send reset link'}
           </button>
           <div className="auth-links">
             {mode !== 'password' && (
@@ -121,11 +107,6 @@ export function Login() {
             {mode === 'password' && (
               <button type="button" className="btn ghost sm" onClick={() => switchMode('reset')}>
                 Forgot password?
-              </button>
-            )}
-            {mode !== 'signup' && (
-              <button type="button" className="btn ghost sm" onClick={() => switchMode('signup')}>
-                Create an account
               </button>
             )}
           </div>

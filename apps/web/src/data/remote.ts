@@ -1,5 +1,5 @@
 import { roleLabels, type Profile } from '@nexora/shared';
-import { supabase } from '../lib/supabase';
+import { appUrl, supabase } from '../lib/supabase';
 import { toast } from '../ui';
 import { DB_VERSION } from './seed';
 import type { Activity, Company, Currency, DB, Lead, Role, User } from './types';
@@ -214,6 +214,18 @@ export async function loadRemote(userId: string): Promise<{ db: DB; key: string 
     activities: [...notes.map(toActivity), ...base.activities.filter((a) => !leadOf(a))].sort((a, b) => b.at.localeCompare(a.at)),
   };
   return { db, key };
+}
+
+/* ---------- Invites ---------- */
+/** Invites a teammate through the invite-user edge function. `link` is set when no email went out and the admin must share it. */
+export async function sendInvite(email: string, role: Role, team: string): Promise<{ link: string | null }> {
+  const value = (Object.keys(roleLabels) as (keyof typeof roleLabels)[]).find((r) => roleLabels[r] === role);
+  const { data, error } = await supabase!.functions.invoke('invite-user', { body: { email, role: value, team, redirectTo: appUrl() } });
+  if (error) {
+    const body = await (error.context as Response | undefined)?.json?.().catch(() => null);
+    throw new Error(body?.error ?? body?.message ?? error.message);
+  }
+  return data;
 }
 
 /* ---------- Saving changes ---------- */

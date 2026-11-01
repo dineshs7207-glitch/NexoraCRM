@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { NavLink, Navigate, useParams } from 'react-router-dom';
 import { can, ROLE_SCOPE, ROLES, useCan } from '../../data/access';
 import { inviteUser, logAudit, switchUser, updateCompany, updateUser } from '../../data/actions';
+import { sendInvite } from '../../data/remote';
 import { resetDB, useDB, useMe, userName } from '../../data/store';
 import { useSession } from '../../lib/session';
+import { supabase } from '../../lib/supabase';
 import type { Company, Currency, Role } from '../../data/types';
 import { downloadText, toCsv } from '../../lib/download';
 import { CURRENCIES, dateTime } from '../../lib/format';
 import { setPrefsAnimated, usePrefs, type PaletteName } from '../../lib/prefs';
-import { AutoTextarea, Avatar, Card, ConfirmModal, DataTable, Field, Modal, PageHeader, Progress, Segmented, Switch, toast } from '../../ui';
+import { AutoTextarea, Avatar, Card, ConfirmModal, DataTable, Field, Modal, PageHeader, Progress, Segmented, Spinner, Switch, toast } from '../../ui';
 
 const TABS = [
   { id: 'profile', label: 'Profile & appearance', icon: Palette },
@@ -320,26 +322,67 @@ function InviteModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>('Sales rep');
   const [team, setTeam] = useState('Mid-market');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [link, setLink] = useState('');
   const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const send = async () => {
+    const address = email.trim().toLowerCase();
+    // The local preview has no backend: just record the invite.
+    if (!supabase) {
+      inviteUser(address, role, team);
+      toast(`Invite created for ${address}`);
+      return onClose();
+    }
+    setBusy(true);
+    setError('');
+    try {
+      const res = await sendInvite(address, role, team);
+      inviteUser(address, role, team);
+      if (res.link) return setLink(res.link);
+      toast(`Invite emailed to ${address}`);
+      onClose();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (link)
+    return (
+      <Modal
+        title="Share this invite link"
+        sub={`The invite email couldn't be sent, so send ${email.trim()} this link yourself (WhatsApp, Slack, email). It works once and expires in 24 hours.`}
+        onClose={onClose}
+        footer={
+          <>
+            <button className="btn" onClick={onClose}>
+              Done
+            </button>
+            <button className="btn primary" onClick={() => void navigator.clipboard.writeText(link).then(() => toast('Invite link copied'))}>
+              Copy link
+            </button>
+          </>
+        }
+      >
+        <input className="input" readOnly value={link} onFocus={(e) => e.target.select()} />
+      </Modal>
+    );
+
   return (
     <Modal
       title="Invite teammate"
-      sub="They'll get an email link to set a password once login is live."
+      sub="They'll get an email link to choose a password. Afterwards they can sign in with Google, their password or an email link."
       onClose={onClose}
       footer={
         <>
           <button className="btn" onClick={onClose}>
             Cancel
           </button>
-          <button
-            className="btn primary"
-            disabled={!ok}
-            onClick={() => {
-              inviteUser(email.trim().toLowerCase(), role, team);
-              toast(`Invite created for ${email}`);
-              onClose();
-            }}
-          >
+          <button className="btn primary" disabled={!ok || busy} onClick={() => void send()}>
+            {busy && <Spinner size={16} />}
             Send invite
           </button>
         </>
@@ -364,6 +407,11 @@ function InviteModal({ onClose }: { onClose: () => void }) {
           </select>
         </Field>
       </div>
+      {error && (
+        <div className="box auth-error" role="alert">
+          {error}
+        </div>
+      )}
     </Modal>
   );
 }
@@ -396,7 +444,7 @@ function Notifications() {
 
 function Security() {
   const items: [string, string][] = [
-    ['Sign-in', 'Supabase Auth: email and password or a one-time email link. Accounts are invite-only.'],
+    ['Sign-in', 'Supabase Auth: Google, email and password, or a one-time email link. Accounts are invite-only.'],
     ['Sessions', 'Short-lived access tokens (15 minutes) that refresh automatically; signing out ends the session on this device.'],
     ['Profiles and roles', 'Your role and record scope come from your Supabase profile and are enforced by row level security in the database.'],
     ['API', 'The Nexora API verifies every token against the project’s signing keys and queries the database as you, never as an admin.'],

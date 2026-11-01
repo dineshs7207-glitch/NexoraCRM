@@ -28,13 +28,19 @@ npx supabase link --project-ref bescvqmyrwyzcszpymcb
 npx supabase db push
 ```
 
-Accounts are invite-only. In the dashboard turn off **Authentication → Sign In / Providers → Allow new users to sign up**, add `http://localhost:5173/` and `https://dineshs7207-glitch.github.io/NexoraCRM/` under **Authentication → URL Configuration**, then invite people from **Authentication → Users**. Every new account gets a `profiles` row as a Sales rep with access to its own records; promote someone in the SQL editor:
+Accounts are invite-only. Add `http://localhost:5173/**` and `https://dineshs7207-glitch.github.io/NexoraCRM/**` under **Authentication → URL Configuration**, then deploy the invite function:
+
+```powershell
+npx supabase functions deploy invite-user --no-verify-jwt
+```
+
+Owners and admins invite people from **Settings → Team & roles → Invite teammate**. The `invite-user` edge function creates the account, sets the role, team and data scope, and emails a link to choose a password. Supabase's built-in mailer only reaches the project's own members, so until custom SMTP is set up (**Authentication → Emails → SMTP Settings**) the app shows the invite link to copy and send yourself. Sign-up stays switched on so invited people can also arrive through Google, but only invited accounts get a `profiles` row; anyone else signs in to an empty "Can't open Nexora" screen. Promote someone in the SQL editor:
 
 ```sql
 update public.profiles set role = 'owner', scope = 'all' where work_email = 'you@example.com';
 ```
 
-People sign in with a password or an emailed one-time link. Invite and reset links land on a "Choose a password" screen.
+People sign in with Google, a password or an emailed one-time link; Google sign-in joins the account with the same email. Invite and reset links land on a "Choose a password" screen.
 
 Roles are `owner`, `admin`, `manager`, `sales_rep` and `viewer` in the database, API (`apps/api/src/permissions.ts`) and app alike; `packages/shared` holds the shared types and labels.
 
