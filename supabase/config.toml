@@ -12,6 +12,18 @@ major_version = 15
 [auth]
 enabled = true
 site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173/**"]
+additional_redirect_urls = ["http://localhost:5173/**", "https://dineshs7207-glitch.github.io/NexoraCRM/**"]
 jwt_expiry = 900
-enable_signup = false
+enable_signup = true
+
+# Open sign-up (new accounts start as sales_rep/own), invites, password, magic links and Google.
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+double_confirm_changes = true
+
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+skip_nonce_check = false

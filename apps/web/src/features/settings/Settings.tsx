@@ -4,6 +4,7 @@ import { NavLink, Navigate, useParams } from 'react-router-dom';
 import { can, ROLE_SCOPE, ROLES, useCan } from '../../data/access';
 import { inviteUser, logAudit, switchUser, updateCompany, updateUser } from '../../data/actions';
 import { resetDB, useDB, useMe, userName } from '../../data/store';
+import { useSession } from '../../lib/session';
 import type { Company, Currency, Role } from '../../data/types';
 import { downloadText, toCsv } from '../../lib/download';
 import { CURRENCIES, dateTime } from '../../lib/format';
@@ -76,7 +77,7 @@ function Profile() {
           <Field label="Full name">
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => name.trim() && name !== me.name && (updateUser(me.id, { name: name.trim() }), toast('Name saved'))} />
           </Field>
-          <Field label="Email" hint="Changing your sign-in email needs verification (with login, Phase 3)">
+          <Field label="Email" hint="Your sign-in email is managed in Supabase; ask an admin to change it">
             <input className="input" value={me.email} disabled />
           </Field>
           <Field label="Role" hint="Only an Owner or Admin can change roles">
@@ -278,7 +279,7 @@ function Team() {
           ))}
         </div>
       </Card>
-      <Card title="What each role can do" sub="Enforced on the server once login is live (Phase 3). Here it shapes the screens.">
+      <Card title="What each role can do" sub="Your role comes from your Supabase profile. The database enforces it as records move there; here it shapes the screens.">
         <div className="table-wrap">
           <table className="table">
             <thead>
@@ -395,17 +396,17 @@ function Notifications() {
 
 function Security() {
   const items: [string, string][] = [
-    ['Sign-in', 'Email and password (hashed with Argon2id), secure httpOnly session cookies, CSRF protection, rate-limited login.'],
-    ['Two-factor authentication', 'Authenticator-app codes (TOTP) for every account; required for Owners and Admins.'],
-    ['Sessions', 'See and sign out devices; sessions expire after inactivity.'],
-    ['Data access', 'Every request checks role and record scope on the server, so reps only ever receive their own records.'],
-    ['Audit trail', 'Every change, export and download is logged with who and when (already active in this preview).'],
-    ['Backups', 'Nightly encrypted database backups stored off the server, with a tested restore.'],
+    ['Sign-in', 'Supabase Auth: email and password or a one-time email link. Accounts are invite-only.'],
+    ['Sessions', 'Short-lived access tokens (15 minutes) that refresh automatically; signing out ends the session on this device.'],
+    ['Profiles and roles', 'Your role and record scope come from your Supabase profile and are enforced by row level security in the database.'],
+    ['API', 'The Nexora API verifies every token against the project’s signing keys and queries the database as you, never as an admin.'],
+    ['Two-factor authentication', 'Authenticator-app codes (TOTP); planned, required for Owners and Admins.'],
+    ['Audit trail', 'Every change, export and download is logged with who and when (in this browser for now).'],
   ];
   return (
-    <Card title="Security" sub="Arrives with login and the database on Hostinger (Phase 3)">
+    <Card title="Security" sub="Sign-in and profiles run on Supabase">
       <div className="box" style={{ background: 'var(--warn-soft)', color: 'var(--warn)', borderColor: 'transparent', marginBottom: 14 }}>
-        This preview stores data only in this browser and has no login. Don't enter real customer data until Phase 3 is live.
+        Customer records are still sample data stored only in this browser. Don't enter real customer data until they move to the database.
       </div>
       {items.map(([title, body]) => (
         <div key={title} className="setting-row">
@@ -465,6 +466,7 @@ function DataTab() {
   const d = useDB();
   const allowed = useCan()('company');
   const [confirm, setConfirm] = useState(false);
+  const signedIn = useSession().status === 'signedIn';
   return (
     <>
       <Card title="Export everything" sub="A full JSON backup of this workspace">
@@ -481,11 +483,11 @@ function DataTab() {
           <Download size={15} /> Download backup
         </button>
       </Card>
-      <Card title="Reset sample data" sub="Puts the preview back to its starting data. Your theme choice is kept.">
+      {!signedIn && <Card title="Reset sample data" sub="Puts the preview back to its starting data. Your theme choice is kept.">
         <button className="btn danger" disabled={!allowed} onClick={() => setConfirm(true)}>
           Reset sample data
         </button>
-      </Card>
+      </Card>}
       {confirm && (
         <ConfirmModal
           title="Reset all data?"

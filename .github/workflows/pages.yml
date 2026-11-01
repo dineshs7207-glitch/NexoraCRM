@@ -22,13 +22,17 @@ jobs:
           version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Build app for GitHub Pages
         run: pnpm --filter @nexora/web build
         env:
           GITHUB_PAGES: 'true'
+          # Repository variables (Settings → Secrets and variables → Actions → Variables).
+          # Without them the deployed site stays an open preview on sample data.
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:

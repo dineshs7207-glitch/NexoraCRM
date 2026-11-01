@@ -1141,3 +1141,58 @@ button.card:hover,
     margin-left: 0 !important;
   }
 }
+
+/* ---------- Sign in ---------- */
+.auth-screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+}
+.auth-card {
+  width: min(420px, 100%);
+  padding: 28px;
+}
+.auth-card .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.auth-card h1 {
+  font-size: 24px;
+  margin: 0 0 4px;
+}
+.auth-card > p {
+  margin: 0 0 20px;
+}
+.auth-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+}
+.auth-error {
+  background: var(--down-soft);
+  color: var(--down);
+  border-color: transparent;
+}
+.auth-ok {
+  background: var(--up-soft);
+  color: var(--up);
+  border-color: transparent;
+}
+.auth-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-3);
+  font-size: 12.5px;
+}
+.auth-or::before,
+.auth-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}

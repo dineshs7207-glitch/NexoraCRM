@@ -5,6 +5,8 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/polish.css';
 import './lib/prefs';
+import { bootAuth } from './lib/supabase';
+import { AuthGate } from './shell/AuthGate';
 import { Shell } from './shell/Shell';
 
 // Every screen is code-split; all of them are fetched in the background once the first one is up,
@@ -32,6 +34,8 @@ const Tasks = page(() => import('./features/tasks/Tasks'), 'Tasks');
 const Settings = page(() => import('./features/settings/Settings'), 'Settings');
 const Schedule = page(() => import('./features/schedule/Schedule'), 'Schedule');
 const Projects = page(() => import('./features/projects/Projects'), 'Projects');
+const Login = page(() => import('./features/auth/Login'), 'Login');
+const SetPassword = page(() => import('./features/auth/Login'), 'SetPassword');
 
 /** Redirects an old route, keeping the record id. */
 function Redirect({ to }: { to: string }) {
@@ -40,18 +44,41 @@ function Redirect({ to }: { to: string }) {
 }
 
 // Hash routing keeps deep links working on static hosting (GitHub Pages today).
-const router = createHashRouter([
+// Created after bootAuth() so email-link tokens in the hash are read before the router sees them.
+const createRouter = () => createHashRouter([
   {
-    path: '/finance/:id/print',
+    path: '/login',
     element: (
       <Suspense fallback={null}>
-        <InvoicePrint />
+        <Login />
       </Suspense>
     ),
   },
   {
+    path: '/set-password',
+    element: (
+      <Suspense fallback={null}>
+        <SetPassword />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/finance/:id/print',
+    element: (
+      <AuthGate>
+        <Suspense fallback={null}>
+          <InvoicePrint />
+        </Suspense>
+      </AuthGate>
+    ),
+  },
+  {
     path: '/',
-    element: <Shell />,
+    element: (
+      <AuthGate>
+        <Shell />
+      </AuthGate>
+    ),
     children: [
       { index: true, element: <Navigate to="/overview" replace /> },
       { path: 'overview', element: <Dashboard /> },
@@ -82,11 +109,13 @@ const router = createHashRouter([
   },
 ]);
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-);
+void bootAuth().finally(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <RouterProvider router={createRouter()} />
+    </StrictMode>,
+  );
+});
 
 const preload = () => loaders.forEach((load) => load().catch(() => {}));
 if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(preload, { timeout: 2500 });

@@ -1,7 +1,7 @@
 import { commit, getDB, newId } from './store';
 import { docTotals } from './seed';
 import { PROJECT_STEPS } from './projectSteps';
-import type { Account, Activity, Automation, Company, Contact, Deal, DocLine, Lead, Product, Project, SalesDoc, Stage, Step, Task, TaskColumn, User } from './types';
+import type { Account, Activity, Automation, Company, Contact, Deal, DocLine, Lead, Product, Project, Role, SalesDoc, Stage, Step, Task, TaskColumn, User } from './types';
 
 const now = () => new Date().toISOString();
 const me = () => getDB().currentUserId;
@@ -382,6 +382,22 @@ export function inviteUser(email: string, role: User['role'], team: string) {
 
 export function switchUser(id: string) {
   commit((d) => void (d.currentUserId = id), { audit: { action: 'Switched view to user', target: getDB().users.find((u) => u.id === id)?.name ?? id } });
+}
+
+/** Makes the signed-in account the current user of this workspace, adding or refreshing its team entry. */
+export function adoptProfile(p: { id: string; name: string; email: string; role: Role; team: string }) {
+  const known = getDB().users.find((u) => u.id === p.id);
+  const fresh = !known || known.name !== p.name || known.email !== p.email || known.role !== p.role || known.team !== p.team;
+  if (!fresh && getDB().currentUserId === p.id) return;
+  commit(
+    (d) => {
+      const u = d.users.find((x) => x.id === p.id);
+      if (u) Object.assign(u, p, { status: 'Active' });
+      else d.users.unshift({ ...p, status: 'Active', quota: 0, hue: 212 });
+      d.currentUserId = p.id;
+    },
+    { audit: { action: 'Signed in', target: p.email } },
+  );
 }
 
 export function logAudit(action: string, target: string) {

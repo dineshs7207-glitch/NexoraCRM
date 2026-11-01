@@ -4,3 +4,8 @@
 - Supabase Auth issues the user JWT. The API validates it using the Supabase project's JWKS endpoint; service role credentials are server-only.
 - Seed data is limited to reference pipeline stages and does not create fake employee accounts or customer records.
 - Redis is an optional API-side cache dependency and must never be accessed from the browser.
+- Supabase is the auth provider and database (project `bescvqmyrwyzcszpymcb`). The web app signs in with supabase-js (password, plus magic links with `shouldCreateUser: false`); the API verifies the same JWTs with `@supabase/server/core` (`verifyCredentials`, then `createContextClient` so row level security applies). There is no Fastify adapter, and the package's framework adapters are deprecated, so the API uses the core helpers directly.
+- One role set everywhere: `owner`, `admin`, `manager`, `sales_rep`, `viewer`. The database enum was migrated (`employee` → `sales_rep`, `owner` added); owners have admin rights in every policy via `public.is_admin()`.
+- New accounts get a profile from the `on_auth_user_created` trigger. Name and team come from invite metadata, but the role never does (users can edit their own metadata), so everyone starts as `sales_rep`/`own` until an admin changes it.
+- CRM records stay in browser storage for now. The signed-in profile becomes the workspace's current user so scope rules already follow the real role; moving records into Supabase tables is the next step.
+- The secret key is server-only and lives in the gitignored root `.env`. The publishable key is safe to ship to the browser.

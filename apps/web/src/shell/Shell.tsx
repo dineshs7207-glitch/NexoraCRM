@@ -1,4 +1,4 @@
-import { BarChart3, Bell, Bolt, Building2, CalendarDays, CheckSquare, FileText, FolderKanban, Home, Inbox, LayoutGrid, Mail, Moon, Package, Plus, Search, Settings, Sun, Target, UserPlus } from 'lucide-react';
+import { BarChart3, Bell, Bolt, Building2, CalendarDays, CheckSquare, FileText, FolderKanban, Home, Inbox, LayoutGrid, LogOut, Mail, Moon, Package, Plus, Search, Settings, Sun, Target, UserPlus } from 'lucide-react';
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { markNotifications, switchUser } from '../data/actions';
@@ -8,6 +8,7 @@ import { ROLE_SCOPE, useScoped } from '../data/access';
 import { useDB, useMe } from '../data/store';
 import { relTime } from '../lib/format';
 import { resolvedTheme, setPrefsAnimated, usePrefs } from '../lib/prefs';
+import { signOut, useSession } from '../lib/session';
 import { Avatar, PageSkeleton, Popover, Sheet, Toasts } from '../ui';
 import { CommandPalette } from './CommandPalette';
 
@@ -55,7 +56,9 @@ export function Shell() {
     { to: '/projects', label: 'Projects' },
   ];
   const dark = resolvedTheme(prefs) === 'dark';
-  const owner = d.users.find((u) => u.role === 'Owner');
+  // Who "Back to …" returns to: the signed-in account, or the Owner in the open preview.
+  const session = useSession();
+  const home = session.status === 'signedIn' ? d.users.find((u) => u.id === session.profile.id) : d.users.find((u) => u.role === 'Owner');
   const toggleTheme = (e: React.MouseEvent) => setPrefsAnimated({ theme: dark ? 'light' : 'dark' }, { x: e.clientX, y: e.clientY });
 
   return (
@@ -86,19 +89,23 @@ export function Shell() {
                 <Avatar key={u.id} name={u.name} hue={u.hue} />
               ))}
           </div>
-          <button className="icon-btn avatar-btn" onClick={() => navigate('/settings/profile')} aria-label="Your profile">
-            <Avatar name={me.name} hue={me.hue} />
-          </button>
+          {session.status === 'signedIn' ? (
+            <AccountMenu />
+          ) : (
+            <button className="icon-btn avatar-btn" onClick={() => navigate('/settings/profile')} aria-label="Your profile">
+              <Avatar name={me.name} hue={me.hue} />
+            </button>
+          )}
         </div>
       </header>
 
-      {me.role !== 'Owner' && owner && (
+      {home && me.id !== home.id && (
         <div className="notice info no-print">
           <span>
-            Previewing as <b>{me.name}</b> ({me.role}, sees {ROLE_SCOPE[me.role].toLowerCase()}). This switch is a preview tool and goes away when login arrives.
+            Previewing as <b>{me.name}</b> ({me.role}, sees {ROLE_SCOPE[me.role].toLowerCase()}). This switch only changes what you see in this browser.
           </span>
-          <button className="btn sm" onClick={() => switchUser(owner.id)}>
-            Back to {owner.name}
+          <button className="btn sm" onClick={() => switchUser(home.id)}>
+            Back to {home.name}
           </button>
         </div>
       )}
@@ -238,6 +245,53 @@ function CreateMenu() {
               <c.icon size={16} /> {c.label}
             </button>
           ))}
+        </div>
+      )}
+    </Popover>
+  );
+}
+
+/** Signed-in account: profile shortcut and sign out. */
+function AccountMenu() {
+  const session = useSession();
+  const navigate = useNavigate();
+  if (session.status !== 'signedIn') return null;
+  const { profile } = session;
+  return (
+    <Popover
+      width={240}
+      trigger={({ toggle }) => (
+        <button className="icon-btn avatar-btn" onClick={toggle} aria-label="Your account">
+          <Avatar name={profile.full_name} hue={212} />
+        </button>
+      )}
+    >
+      {(close) => (
+        <div>
+          <div style={{ padding: '8px 10px 6px' }}>
+            <b style={{ display: 'block' }}>{profile.full_name}</b>
+            <span className="muted" style={{ fontSize: 12.5 }}>
+              {profile.work_email}
+            </span>
+          </div>
+          <button
+            className="menu-item"
+            onClick={() => {
+              close();
+              navigate('/settings/profile');
+            }}
+          >
+            <Settings size={16} /> Profile & settings
+          </button>
+          <button
+            className="menu-item"
+            onClick={() => {
+              close();
+              void signOut();
+            }}
+          >
+            <LogOut size={16} /> Sign out
+          </button>
         </div>
       )}
     </Popover>

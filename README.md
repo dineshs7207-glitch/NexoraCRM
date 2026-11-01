@@ -2,18 +2,41 @@
 
 Sales platform for the Nexora team: pipeline (deals and leads), customers with full client history, schedule, finance (quotes, invoices, payments), growth reports, onboarding projects, an inbox and a working automation engine. Structure and labels follow the sales reference in [docs/SOLVIK_REFERENCE.md](docs/SOLVIK_REFERENCE.md); interaction patterns come from [docs/CORBEL_REFERENCE_ANALYSIS.md](docs/CORBEL_REFERENCE_ANALYSIS.md). All code and styles are our own. QA notes: [docs/QA_REVIEW.md](docs/QA_REVIEW.md).
 
-**Status: Phase 2 preview.** Every screen works on sample data stored in the browser. Login, the PostgreSQL database and server-generated PDFs arrive in Phases 3–4 on Hostinger. Don't enter real customer data yet.
+**Status: Phase 3 started.** Sign-in and user profiles run on Supabase (project `bescvqmyrwyzcszpymcb`). CRM records still live as sample data in the browser until they move to the database, so don't enter real customer data yet.
 
 ## Run locally
 
-Requirements: Node.js 20+ and pnpm 9.
+Requirements: Node.js 22+ and pnpm 9.
 
 ```powershell
 pnpm install
-pnpm --filter @nexora/web dev
+copy .env.example .env                  # then fill in the server values (secret key from Supabase → API Keys)
+# apps/web/.env.local needs VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY
+pnpm --filter @nexora/web dev           # http://localhost:5173/
+pnpm --filter @nexora/api dev           # http://localhost:4000/health, /me
 ```
 
-Open `http://localhost:5173/`.
+Without the `VITE_SUPABASE_*` values the web app skips sign-in and runs as an open preview on sample data (this is what GitHub Pages shows unless the repository variables are set).
+
+## Supabase
+
+Migrations live in `supabase/migrations`. Apply them to the hosted project with the Supabase CLI:
+
+```powershell
+npx supabase login
+npx supabase link --project-ref bescvqmyrwyzcszpymcb
+npx supabase db push
+```
+
+Accounts are invite-only. In the dashboard turn off **Authentication → Sign In / Providers → Allow new users to sign up**, add `http://localhost:5173/` and `https://dineshs7207-glitch.github.io/NexoraCRM/` under **Authentication → URL Configuration**, then invite people from **Authentication → Users**. Every new account gets a `profiles` row as a Sales rep with access to its own records; promote someone in the SQL editor:
+
+```sql
+update public.profiles set role = 'owner', scope = 'all' where work_email = 'you@example.com';
+```
+
+People sign in with a password or an emailed one-time link. Invite and reset links land on a "Choose a password" screen.
+
+Roles are `owner`, `admin`, `manager`, `sales_rep` and `viewer` in the database, API (`apps/api/src/permissions.ts`) and app alike; `packages/shared` holds the shared types and labels.
 
 ## What's in the app
 
@@ -38,7 +61,7 @@ Accounts, deals, products, quotes and invoices each carry their own currency (IN
 
 ### Roles
 
-Owner and Admin see everything. Managers see their team, Sales reps see only their own records, and Viewers are read-only. In this preview, Settings → Team → **View as** lets you check what each role sees; the server enforces the same rules from Phase 3.
+Owner and Admin see everything. Managers see their team, Sales reps see only their own records, and Viewers are read-only. Your role comes from your Supabase profile. Settings → Team → **View as** still lets you check what each role sees in this browser; the database enforces the same rules with row level security as records move to Supabase.
 
 ### Invoice download
 
@@ -61,6 +84,7 @@ apps/web/src
 ```powershell
 pnpm --filter @nexora/web typecheck
 pnpm --filter @nexora/web build
+pnpm --filter @nexora/api typecheck
 ```
 
 ## GitHub Pages
